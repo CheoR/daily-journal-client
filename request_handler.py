@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
-from entries import get_all_entries, get_single_entry, delete_single_entry
+from entries import get_all_entries, get_single_entry, delete_single_entry, search_entries
 
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -44,6 +44,18 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = f"{get_single_entry(id)}"
                 else:
                     response = f"{get_all_entries()}"
+
+        # Response from parse_url() is a tuple with 3
+        # items in it, which means the request was for
+        # `/resource?parameter=value`
+        elif len(parsed) == 3:
+            (resource, key, value) = parsed
+
+            # Is the resource `customers` and was there a
+            # query parameter that specified the customer
+            # email as a filtering value?
+            if key == "q" and resource == "entries":
+                response = search_entries(value)
 
         self.wfile.write(response.encode())
 
