@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
-from entries import get_all_entries, get_single_entry
+from entries import get_all_entries, get_single_entry, delete_single_entry
 
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -46,6 +46,21 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = f"{get_all_entries()}"
 
         self.wfile.write(response.encode())
+
+    def do_DELETE(self):
+        # 204 - Successfully processed request
+        # but no information to send back
+        self._set_headers(204)
+
+        (resource, id) = self.parse_url(self.path)
+
+        delete_single_object = {
+            "entries": delete_single_entry
+        }
+        func = delete_single_object[resource]
+        func(id)
+
+        self.wfile.write("".encode())
 
     def parse_url(self, path):
         path_params = path.split("/")
