@@ -1,0 +1,12 @@
+{
+ "python.pythonPath": "/home/cheo/.virtualenvs/python-server-Yrd9GOKT/bin/python",
+ "sqltools.connections": [
+  {
+   "previewLimit": 50,
+   "driver": "SQLite",
+   "name": "Daily Journal",
+   "database": "dailyjournal.db"
+  }
+ ],
+ "sqltools.useNodeRuntime": true
+}
