@@ -63,3 +63,30 @@ def delete_single_entry(id):
             DELETE FROM entries
             WHERE id = ?
         """, (id, ))
+
+
+def search_entries(term):
+    with sqlite3.connect("./dailyjournal.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+            SELECT
+                e.id,
+                e.date,
+                e.concept,
+                e.entry,
+                e.mood_id AS mood
+            FROM entries e
+            WHERE e.entry LIKE ? OR e.concept LIKE ?
+        """, (f"%{term}%", f"%{term}%", ))
+
+    entries = []
+    data = db_cursor.fetchall()
+
+    for row in data:
+        entry = Entry(row["id"], row["date"], row["concept"],
+                      row["entry"], row["mood"])
+        entries.append(entry.__dict__)
+
+    return json.dumps(entries)
