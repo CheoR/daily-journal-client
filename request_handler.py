@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
-from entries import get_all_entries, get_single_entry, delete_single_entry, search_entries, create_journal_entry
+from entries import get_all_entries, get_single_entry, delete_single_entry, search_entries, create_journal_entry, update_entry
 
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -131,6 +131,31 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         # Encode the new object and send in response
         self.wfile.write(f"{new_object}".encode())
+
+    def do_PUT(self):
+        content_len = int(self.headers.get('content-length', 0))
+
+        post_body = self.rfile.read(content_len)
+        post_body = json.loads(post_body)
+
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
+
+        success = False
+
+        if resource == "entries":
+            success = update_entry(id, post_body)
+        # rest of the elif's
+
+        if success:
+            # 204 - Successful request but no content to return.
+            self._set_headers(204)
+        else:
+            # Something went wrong.
+            self._set_headers(404)
+
+        # Encode the new entry and send in response
+        self.wfile.write("".encode())
 
 # This function is not inside the class. It is the starting
 # point of this application.
