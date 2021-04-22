@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
-from entries import get_all_entries, get_single_entry, delete_single_entry, search_entries
+from entries import get_all_entries, get_single_entry, delete_single_entry, search_entries, create_journal_entry
 
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -106,9 +106,36 @@ class HandleRequests(BaseHTTPRequestHandler):
 
             return (resource, id)
 
+    def do_POST(self):
+        # Set response code to 'Created'
+        self._set_headers(201)
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+
+        # Convert JSON string to a Python dictionary
+        post_body = json.loads(post_body)
+
+        # Parse URL
+        (resource, id) = self.parse_url(self.path)
+
+        # Initialize new object
+        new_object = None
+
+        # Add a new object to the list.
+        create_obj = {
+            "entries": create_journal_entry
+        }
+
+        func = create_obj[resource]
+        new_object = func(post_body)
+
+        # Encode the new object and send in response
+        self.wfile.write(f"{new_object}".encode())
 
 # This function is not inside the class. It is the starting
 # point of this application.
+
+
 def main():
     host = ''
     port = 8088
